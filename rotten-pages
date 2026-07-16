@@ -1,2 +1,491 @@
 # Librer-a-Cervantes
 Calificación de libros 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RottenPages - Crítica de Libros</title>
+    <style>
+        /* VARIABLES DE COLOR ESTILO ROTTEN TOMATOES */
+        :root {
+            --bg-dark: #1a1a1a;
+            --bg-light: #f3f3f3;
+            --rt-red: #fa320a;
+            --rt-yellow: #f1c40f;
+            --text-dark: #222;
+            --text-light: #fff;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        /* CABECERA (NAVBAR) */
+        header {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            color: var(--rt-red);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--rt-red);
+        }
+
+        /* SECCIÓN HERO (LIBRO DESTACADO) */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: var(--text-light);
+            padding: 60px 5%;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hero-cover {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .hero-details {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+
+        .hero-author {
+            font-size: 18px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        /* CONTENEDOR DE PUNTUACIONES */
+        .scores-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .score-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .score-icon {
+            font-size: 40px;
+        }
+
+        .score-percentage {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .score-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #aaa;
+            letter-spacing: 1px;
+            display: block;
+        }
+
+        .hero-synopsis {
+            line-height: 1.6;
+            color: #ddd;
+            max-width: 800px;
+        }
+
+        /* CONTENIDO PRINCIPAL / GRID DE LIBROS */
+        main {
+            padding: 40px 5%;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--rt-red);
+            padding-left: 10px;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+        }
+
+        /* TARJETAS DE LIBROS */
+        .book-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .book-cover-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background-color: #eee;
+        }
+
+        .book-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .book-card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-card-author {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .card-scores {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+
+        .mini-score {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--bg-dark);
+            color: #888;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            font-size: 14px;
+        }
+
+        /* RESPONSIVO */
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                justify-content: center;
+            }
+            .scores-container {
+                justify-content: center;
+            }
+            .search-bar {
+                order: 3;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABECERA -->
+    <header>
+        <a href="#" class="logo">🍅 <span>Rotten</span>Pages</a>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar libros, autores, géneros..." onkeyup="searchBooks()">
+        </div>
+        <nav class="nav-links">
+            <a href="#">Tendencias</a>
+            <a href="#">Críticos</a>
+            <a href="#">Mi Estante</a>
+        </nav>
+    </header>
+
+    <!-- LIBRO DESTACADO DE LA SEMANA (HERO) -->
+    <section class="hero" id="featured-book">
+        <img class="hero-cover" src="https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1648311516i/60631693.jpg" alt="Portada del Libro">
+        <div class="hero-details">
+            <h1 class="hero-title">Fairy Tale</h1>
+            <p class="hero-author">por Stephen King</p>
+            
+            <div class="scores-container">
+                <!-- Tomatometro de Críticos -->
+                <div class="score-box">
+                    <span class="score-icon">🍅</span>
+                    <div>
+                        <span class="score-percentage">88%</span>
+                        <span class="score-label">Tomatómetro</span>
+                    </div>
+                </div>
+                <!-- Taza de Café de la Audiencia -->
+                <div class="score-box">
+                    <span class="score-icon">☕</span>
+                    <div>
+                        <span class="score-percentage">91%</span>
+                        <span class="score-label">Audiencia</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="hero-synopsis">
+                Charlie Reade parece un estudiante de instituto normal y corriente, pero carga con un pesado pasado. Cuando hereda las llaves de un portal que conduce a un mundo fantástico y en peligro, se convertirá en el héroe de una épica batalla entre las fuerzas del bien y del mal.
+            </p>
+        </div>
+    </section>
+
+    <!-- LISTADO DE LIBROS -->
+    <main>
+        <h2 class="section-title">Novedades y Más Valorados</h2>
+        <div class="books-grid" id="booksGrid">
+            <!-- Los libros se renderizan dinámicamente mediante JS -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 RottenPages. Todos los derechos reservados. Hecho para amantes de la buena lectura.</p>
+    </footer>
+
+    <!-- INTERACTIVIDAD Y DATOS -->
+    <script>
+        // Base de datos simulada de libros
+        const books = [
+            {
+                title: "Dune",
+                author: "Frank Herbert",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1555447414i/44767458.jpg",
+                tomatometer: 95,
+                audience: 90,
+                synopsis: "En el desértico planeta Arrakis, la lucha por el control de la 'especie', la sustancia más valiosa del universo, desata una épica intriga política y mística."
+            },
+            {
+                title: "Hábitos Atómicos",
+                author: "James Clear",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1655988390i/40063136.jpg",
+                tomatometer: 92,
+                audience: 87,
+                synopsis: "Aprende cómo los pequeños cambios diarios de apenas un 1% pueden transformar radicalmente tu vida personal y profesional."
+            },
+            {
+                title: "La Paciente Silenciosa",
+                author: "Alex Michaelides",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1668782119i/40097951.jpg",
+                tomatometer: 64, // Puntuación media (tomate fresco pero raspado)
+                audience: 81,
+                synopsis: "Alicia Berenson, una pintora de éxito, dispara a su marido y nunca vuelve a hablar. Un terapeuta obsesionado intentará resolver el misterio."
+            },
+            {
+                title: "Apocalipsis (The Stand)",
+                author: "Stephen King",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1215162451i/11547.jpg",
+                tomatometer: 98,
+                audience: 94,
+                synopsis: "Un virus gripal mutado artificialmente se expande por el mundo provocando el fin de la civilización tal y como la conocemos."
+            },
+            {
+                title: "El Psicoanalista",
+                author: "John Katzenbach",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1482811340i/781121.jpg",
+                tomatometer: 71,
+                audience: 85,
+                synopsis: "Un psicoanalista recibe una nota anónima el día de su cumpleaños dándole quince días para descubrir la identidad de su acosador o suicidarse."
+            },
+            {
+                title: "Cien años de soledad",
+                author: "Gabriel García Márquez",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1577812331i/40590312.jpg",
+                tomatometer: 100,
+                audience: 95,
+                synopsis: "La colosal obra maestra del realismo mágico que narra la historia de la dinastía Buendía en el mítico e inolvidable pueblo de Macondo."
+            },
+            {
+                title: "Goth",
+                author: "Otsuichi",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1327918512i/209054.jpg",
+                tomatometer: 58, // ¡Podrido! Menos de 60%
+                audience: 74,
+                synopsis: "Dos estudiantes de secundaria obsesionados con el lado oscuro de la mente humana investigan una serie de crueles asesinatos locales."
+            },
+            {
+                title: "Crepúsculo",
+                author: "Stephenie Meyer",
+                cover: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1361039440i/41865.jpg",
+                tomatometer: 49, // ¡Podrido!
+                audience: 60,
+                synopsis: "Bella Swan se muda al lluvioso pueblo de Forks donde conoce al misterioso Edward Cullen, quien resulta ocultar un peligroso secreto inmortal."
+            }
+        ];
+
+        // Función para renderizar los libros en el Grid
+        function renderBooks(booksList) {
+            const grid = document.getElementById('booksGrid');
+            grid.innerHTML = '';
+
+            booksList.forEach(book => {
+                // Definir icono del Tomatometro según la nota (>=60 es fresco, <60 es podrido)
+                const tomatoIcon = book.tomatometer >= 60 ? '🍅' : '🤢';
+                // Definir icono de Audiencia (>=75 es café lleno, <75 es café volcado o frío)
+                const audienceIcon = book.audience >= 75 ? '☕' : '☕️💥';
+
+                const cardHTML = `
+                    <div class="book-card" onclick="selectFeaturedBook('${book.title.replace(/'/g, "\\'")}')">
+                        <div class="book-cover-wrapper">
+                            <img src="${book.cover}" alt="Portada de ${book.title}">
+                        </div>
+                        <div class="book-info">
+                            <h3 class="book-card-title">${book.title}</h3>
+                            <p class="book-card-author">${book.author}</p>
+                            <div class="card-scores">
+                                <div class="mini-score">
+                                    <span>${tomatoIcon}</span>
+                                    <span>${book.tomatometer}%</span>
+                                </div>
+                                <div class="mini-score">
+                                    <span>${audienceIcon}</span>
+                                    <span>${book.audience}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHTML;
+            });
+        }
+
+        // Función para cambiar el libro destacado (Hero) al hacer clic en una tarjeta
+        function selectFeaturedBook(title) {
+            const book = books.find(b => b.title === title);
+            if (!book) return;
+
+            const tomatoIcon = book.tomatometer >= 60 ? '🍅' : '🤢';
+            const audienceIcon = book.audience >= 75 ? '☕' : '☕️💥';
+
+            document.getElementById('featured-book').innerHTML = `
+                <img class="hero-cover" src="${book.cover}" alt="Portada de ${book.title}">
+                <div class="hero-details">
+                    <h1 class="hero-title">${book.title}</h1>
+                    <p class="hero-author">por ${book.author}</p>
+                    
+                    <div class="scores-container">
+                        <div class="score-box">
+                            <span class="score-icon">${tomatoIcon}</span>
+                            <div>
+                                <span class="score-percentage">${book.tomatometer}%</span>
+                                <span class="score-label">Tomatómetro</span>
+                            </div>
+                        </div>
+                        <div class="score-box">
+                            <span class="score-icon">${audienceIcon}</span>
+                            <div>
+                                <span class="score-percentage">${book.audience}%</span>
+                                <span class="score-label">Audiencia</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="hero-synopsis">${book.synopsis}</p>
+                </div>
+            `;
+            // Scroll suave hacia arriba para ver el detalle
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Buscador interactivo en tiempo real
+        function searchBooks() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = books.filter(book => 
+                book.title.toLowerCase().includes(query) || 
+                book.author.toLowerCase().includes(query)
+            );
+            renderBooks(filtered);
+        }
+
+        // Inicializar la carga de libros al abrir la página
+        renderBooks(books);
+    </script>
+</body>
+</html>
